@@ -1,0 +1,12 @@
+# vim: ts=2:sw=2:sts=2:et:ft=yaml
+# -*- mode: yaml; yaml-indent-offset: 2; indent-tabs-mode: nil; -*-
+---
+releases:
+
+  - "1.0.0":
+    changes:
+      added:
+        - 'Initial release of `o0_o.controller` collection.'
+        - 'New `facts` module and action plugin to gather controller-only facts.'
+        - 'Support for controller fact subsets: `user`, `config`, `python`.'
+        - Full unit test and integration test coverage for the facts plugin.

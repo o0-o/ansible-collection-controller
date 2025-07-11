@@ -1,0 +1,63 @@
+# vim: ts=2:sw=2:sts=2:et:ft=yaml
+# -*- mode: yaml; tab-width: 2; indent-tabs-mode: nil; -*-
+#
+# GNU General Public License v3.0+
+# SPDX-License-Identifier: GPL-3.0-or-later
+# (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+#
+# Copyright (c) 2025 oØ.o (@o0-o)
+#
+# This file is part of the o0_o.controller Ansible Collection.
+
+- name: Gather only user facts
+  o0_o.controller.facts:
+    gather_subset:
+      - user
+
+- name: Assert only user fact is present
+  assert:
+    that:
+      - o0_controller is mapping
+      - o0_controller['user'] is mapping
+      - o0_controller | length == 1
+
+- name: Gather all except config
+  o0_o.controller.facts:
+    gather_subset:
+      - all
+      - '!config'
+
+- name: Assert config fact is excluded
+  assert:
+    that:
+      - "'config' not in o0_controller"
+      - "'user' in o0_controller"
+      - "'python' in o0_controller"
+
+- name: Gather all controller facts
+  o0_o.controller.facts:
+
+- name: Assert top-level fact exists
+  assert:
+    that:
+      - o0_controller is mapping
+
+- name: Assert user facts are present
+  assert:
+    that:
+      - o0_controller['user']['id'] is number
+      - o0_controller['user']['name'] is string
+      - o0_controller['user']['group']['id'] is string
+      - o0_controller['user']['group']['name'] is string
+
+- name: Assert python facts are present
+  assert:
+    that:
+      - o0_controller['python']['interpreter']['path'] is string
+      - o0_controller['python']['interpreter']['version']['id'] is string
+
+- name: Assert config facts are present
+  assert:
+    that:
+      - o0_controller['config']['path'] is string
+      - o0_controller['config']['settings'] is mapping
