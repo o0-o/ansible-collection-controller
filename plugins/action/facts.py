@@ -226,17 +226,17 @@ class ActionModule(ActionBase):
                 "as a controller host. This plugin uses POSIX-only tools."
             )
 
-        argument_spec = dict(
-            gather_subset=dict(
-                type='list',
-                elements='str',
-                default=['all'],
-                choices=[
+        argument_spec = {
+            'gather_subset': {
+                'type': 'list',
+                'elements': 'str',
+                'default': ['all'],
+                'choices': [
                     'all', 'user', 'config', 'python',
                     '!all', '!user', '!config', '!python'
                 ]
-            )
-        )
+            }
+        }
 
         validation_result, new_module_args = self.validate_argument_spec(
             argument_spec=argument_spec
