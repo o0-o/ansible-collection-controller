@@ -9,18 +9,21 @@
 #
 # This file is part of the o0_o.controller Ansible Collection.
 
-import pytest
+from __future__ import annotations
+
+from typing import Generator
 from unittest.mock import MagicMock
+
+import pytest
+
 from ansible_collections.o0_o.controller.plugins.action.facts import (
     ActionModule
 )
 
 
 @pytest.fixture
-def action_base():
-    """
-    Provide a mock-initialized ActionModule instance suitable for unit testing.
-    """
+def action_base() -> Generator[ActionModule, None, None]:
+    """Provide a mock-initialized ActionModule for unit testing."""
     return ActionModule(
         task=MagicMock(),
         connection=MagicMock(),

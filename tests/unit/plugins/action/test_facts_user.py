@@ -9,15 +9,14 @@
 #
 # This file is part of the o0_o.controller Ansible Collection.
 
+from __future__ import annotations
+
 import os
 import subprocess
 
 
-def test_user(monkeypatch, action_base):
-    """
-    Verify that the user() collector correctly gathers UID, username,
-    group ID, and group name from the local controller.
-    """
+def test_user(monkeypatch, action_base) -> None:
+    """Test user collector gathers controller user information."""
     monkeypatch.setattr(os, 'geteuid', lambda: 1000)
 
     def mock_run(args, capture_output, encoding, check):

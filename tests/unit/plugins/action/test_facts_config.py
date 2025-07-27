@@ -12,16 +12,14 @@
 from __future__ import annotations
 
 import tempfile
+
 import pytest
 
 from ansible.errors import AnsibleActionFail
 
 
-def test_config_reads_ini(action_base):
-    """
-    Ensure that the config() collector parses a real INI file correctly,
-    extracting the config path and nested settings.
-    """
+def test_config_reads_ini(action_base) -> None:
+    """Test config collector parses INI file correctly."""
     ini = '[defaults]\ninventory = ./hosts\n'
 
     with tempfile.NamedTemporaryFile('w', delete=False) as f:
@@ -36,11 +34,8 @@ def test_config_reads_ini(action_base):
     assert result['settings']['defaults']['inventory'] == './hosts'
 
 
-def test_config_raises_without_var(action_base):
-    """
-    Ensure that config() raises AnsibleActionFail when ansible_config_file
-    is missing from task_vars.
-    """
+def test_config_raises_without_var(action_base) -> None:
+    """Test config raises error when ansible_config_file missing."""
     with pytest.raises(AnsibleActionFail) as excinfo:
         action_base.config(task_vars={})
 

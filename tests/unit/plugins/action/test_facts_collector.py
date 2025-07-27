@@ -16,10 +16,8 @@ import pytest
 from ansible.errors import AnsibleActionFail
 
 
-def test_collector_all(monkeypatch, action_base):
-    """
-    Verify that collector() gathers all available subsets when 'all' is passed.
-    """
+def test_collector_all(monkeypatch, action_base) -> None:
+    """Test collector gathers all subsets when 'all' is passed."""
     monkeypatch.setattr(action_base, 'user', lambda **_: {'u': 1})
     monkeypatch.setattr(action_base, 'config', lambda **_: {'c': 2})
     monkeypatch.setattr(action_base, 'python', lambda **_: {'p': 3})
@@ -31,10 +29,8 @@ def test_collector_all(monkeypatch, action_base):
     assert result['o0_controller']['python'] == {'p': 3}
 
 
-def test_collector_exclude(monkeypatch, action_base):
-    """
-    Verify that specific subsets can be excluded using '!subset' syntax.
-    """
+def test_collector_exclude(monkeypatch, action_base) -> None:
+    """Test collector excludes specific subsets using '!subset' syntax."""
     monkeypatch.setattr(action_base, 'user', lambda **_: {'u': 1})
     monkeypatch.setattr(action_base, 'config', lambda **_: {'c': 2})
     monkeypatch.setattr(action_base, 'python', lambda **_: {'p': 3})
@@ -46,10 +42,8 @@ def test_collector_exclude(monkeypatch, action_base):
     assert 'python' in result['o0_controller']
 
 
-def test_collector_invalid_subset(action_base):
-    """
-    Verify that collector() raises AnsibleActionFail for invalid subset names.
-    """
+def test_collector_invalid_subset(action_base) -> None:
+    """Test collector raises error for invalid subset names."""
     with pytest.raises(AnsibleActionFail) as excinfo:
         action_base.collector(gather_subset=['bogus'])
 

@@ -11,39 +11,48 @@
 
 from __future__ import annotations
 
-import os
-import sys
-import subprocess
 import configparser
+import os
+import subprocess
+import sys
+from typing import Any, Dict, List, Optional
 
-from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleActionFail
+from ansible.plugins.action import ActionBase
 
 
 class ActionModule(ActionBase):
-    """Gather facts relating to the Ansible controller host"""
+    """Gather facts relating to the Ansible controller host.
+    
+    This action plugin collects information about the Ansible controller
+    host including user details, Python interpreter information, and
+    Ansible configuration settings. Since it operates on the controller
+    host, it does not require a connection to remote hosts.
+    
+    The plugin provides modular fact collection through subset filtering
+    and supports comprehensive controller environment introspection.
+    
+    .. note::
+       This plugin operates locally on the controller and does not
+       require a connection to remote hosts.
+    """
 
     TRANSFERS_FILES = False
     _requires_connection = False
     _supports_check_mode = True
     _supports_async = False
+    _supports_diff = False
 
-    def user(self, task_vars=None):
-        """
-        Return current controller user ID, username, and group info.
-
-        Returns:
-            dict: {
-                id: int,
-                name: str,
-                group: {
-                    id: str,
-                    name: str
-                }
-            }
-
-        Raises:
-            AnsibleActionFail: if any subprocess call fails.
+    def user(self, task_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Return current controller user ID, username, and group info.
+        
+        Collects information about the user running the Ansible controller
+        process including user ID, username, primary group ID, and group name.
+        
+        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :returns Dict[str, Any]: User information dictionary with id, name,
+            and group details
+        :raises AnsibleActionFail: If any subprocess call fails
         """
         task_vars = task_vars or {}
         self._display.v("Collecting controller user info...")
@@ -84,15 +93,17 @@ class ActionModule(ActionBase):
             }
         }
 
-    def config(self, task_vars=None):
-        """
-        Read Ansible config file as specified in task_vars.
-
-        Returns:
-            dict: {
-                path: str,
-                settings: dict[str, dict[str, str]]
-            }
+    def config(self, task_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Read Ansible config file as specified in task_vars.
+        
+        Parses the Ansible configuration file and extracts all sections
+        and their settings for controller introspection.
+        
+        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :returns Dict[str, Any]: Configuration dictionary with path and
+            settings information
+        :raises AnsibleActionFail: If ansible_config_file is missing from
+            task_vars
         """
         task_vars = task_vars or {}
         self._display.v("Collecting controller Ansible config info...")
@@ -113,24 +124,16 @@ class ActionModule(ActionBase):
 
         return config
 
-    def python(self, task_vars=None):
-        """
-        Return Python interpreter info and pip version (if available).
-
-        Returns:
-            dict: {
-                interpreter: {
-                    path: str,
-                    version: {
-                        id: str
-                    }
-                },
-                pip: {
-                    version: {
-                        id: str
-                    }
-                } (optional)
-            }
+    def python(self, task_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Return Python interpreter info and pip version (if available).
+        
+        Collects information about the Python interpreter running Ansible
+        and attempts to determine the pip version if available.
+        
+        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :returns Dict[str, Any]: Python interpreter and pip information
+        :raises AnsibleActionFail: If ansible_playbook_python is missing
+            from task_vars
         """
         task_vars = task_vars or {}
         self._display.v("Collecting controller Python info...")
@@ -165,16 +168,22 @@ class ActionModule(ActionBase):
 
         return python
 
-    def collector(self, gather_subset=None, task_vars=None):
-        """
-        Run selected collectors and return merged fact data.
-
-        Args:
-            gather_subset (list): Collector subset names or ['all']
-            task_vars (dict): Task variables from controller
-
-        Returns:
-            dict: {'o0_controller': {...}}
+    def collector(
+        self, gather_subset: Optional[List[str]] = None, task_vars: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Run selected collectors and return merged fact data.
+        
+        Coordinates the collection of different fact categories based on
+        the specified subset filter, supporting modular fact gathering.
+        
+        :param Optional[List[str]] gather_subset: Collector subset names
+            or ['all']
+        :param Optional[Dict[str, Any]] task_vars: Task variables from
+            controller
+        :returns Dict[str, Any]: Merged fact data under o0_controller
+            namespace
+        :raises AnsibleActionFail: When invalid gather_subset values are
+            provided
         """
         gather_subset = gather_subset or ['all']
         task_vars = task_vars or {}
@@ -202,12 +211,25 @@ class ActionModule(ActionBase):
 
         return {'o0_controller': facts}
 
-    def run(self, tmp=None, task_vars=None):
-        """
-        Main entry point for the controller facts module.
-
-        Returns:
-            dict: Action result including ansible_facts
+    def run(
+        self, tmp: Optional[str] = None, task_vars: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Main entry point for the controller facts action plugin.
+        
+        Gathers facts about the Ansible controller host based on the
+        specified subset filter and returns them under the o0_controller
+        fact namespace.
+        
+        :param Optional[str] tmp: Temporary directory path (unused)
+        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :returns Dict[str, Any]: Standard Ansible result dictionary
+        :raises AnsibleActionFail: When running on Windows controllers or
+            invalid gather_subset values are provided
+        
+        .. note::
+           This method operates locally on the controller host and does
+           not require a connection to remote hosts. It warns when not
+           run with run_once: true.
         """
         task_vars = task_vars or {}
         tmp = None  # tmp is unused in modern Ansible

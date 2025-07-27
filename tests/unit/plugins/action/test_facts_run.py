@@ -12,15 +12,14 @@
 from __future__ import annotations
 
 import os
+
 import pytest
 
 from ansible.errors import AnsibleActionFail
 
 
-def test_run_blocks_on_windows(monkeypatch, action_base):
-    """
-    Ensure that the run() method raises AnsibleActionFail on Windows systems.
-    """
+def test_run_blocks_on_windows(monkeypatch, action_base) -> None:
+    """Test run method blocks on Windows systems."""
     monkeypatch.setattr(os, 'name', 'nt')
 
     with pytest.raises(AnsibleActionFail) as excinfo:

@@ -11,18 +11,16 @@
 
 from __future__ import annotations
 
-import sys
 import subprocess
+import sys
+
 import pytest
 
 from ansible.errors import AnsibleActionFail
 
 
-def test_python_info(monkeypatch, action_base):
-    """
-    Verify that the python() collector returns the interpreter path,
-    Python version, and pip version (when pip is available).
-    """
+def test_python_info(monkeypatch, action_base) -> None:
+    """Test python collector returns interpreter and pip information."""
     monkeypatch.setattr(sys, 'version', '3.12.1 (main, Jan 1 2025) ...')
 
     def mock_run(args, capture_output, encoding, check):
@@ -39,11 +37,8 @@ def test_python_info(monkeypatch, action_base):
     assert result['pip']['version']['id'] == '24.0'
 
 
-def test_python_raises_without_interpreter(action_base):
-    """
-    Verify that python() raises AnsibleActionFail when the required
-    'ansible_playbook_python' variable is missing.
-    """
+def test_python_raises_without_interpreter(action_base) -> None:
+    """Test python raises error when ansible_playbook_python missing."""
     with pytest.raises(AnsibleActionFail) as excinfo:
         action_base.python(task_vars={})
 
