@@ -22,7 +22,8 @@ from ansible.plugins.action import ActionBase
 
 
 class ActionModule(ActionBase):
-    """Gather facts relating to the Ansible controller host.
+    """
+    Gather facts relating to the Ansible controller host.
 
     This action plugin collects information about the Ansible controller
     host including user details, Python interpreter information, and
@@ -43,135 +44,145 @@ class ActionModule(ActionBase):
     _supports_async = False
     _supports_diff = False
 
-    def user(self, task_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Return current controller user ID, username, and group info.
+    def user(
+        self, task_vars: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Return current controller user ID, username, and group info.
 
-        Collects information about the user running the Ansible controller
-        process including user ID, username, primary group ID, and group name.
+        Collects information about the user running the Ansible
+        controller process including user ID, username, primary group
+        ID, and group name.
 
-        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
-        :returns Dict[str, Any]: User information dictionary with id, name,
-            and group details
+        :param Optional[Dict[str, Any]] task_vars: Task variables
+            dictionary
+        :returns Dict[str, Any]: User information dictionary with id,
+            name, and group details
         :raises AnsibleActionFail: If any subprocess call fails
         """
         task_vars = task_vars or {}
-        self._display.v('Collecting controller user info...')
+        self._display.v("Collecting controller user info...")
 
         user_id = os.geteuid()
 
         try:
             user_name = subprocess.run(
-                ['id', '-un', '--', str(user_id)],
+                ["id", "-un", "--", str(user_id)],
                 capture_output=True,
-                encoding='utf-8',
-                check=True
-            ).stdout.rstrip('\r\n')
+                encoding="utf-8",
+                check=True,
+            ).stdout.rstrip("\r\n")
 
             group_id = subprocess.run(
-                ['id', '-g', '--', str(user_id)],
+                ["id", "-g", "--", str(user_id)],
                 capture_output=True,
-                encoding='utf-8',
-                check=True
-            ).stdout.rstrip('\r\n')
+                encoding="utf-8",
+                check=True,
+            ).stdout.rstrip("\r\n")
 
             group_name = subprocess.run(
-                ['id', '-gn', '--', str(user_id)],
+                ["id", "-gn", "--", str(user_id)],
                 capture_output=True,
-                encoding='utf-8',
-                check=True
-            ).stdout.rstrip('\r\n')
+                encoding="utf-8",
+                check=True,
+            ).stdout.rstrip("\r\n")
 
         except subprocess.CalledProcessError as e:
             raise AnsibleActionFail(f"Failed to get user info: {e}") from e
 
         return {
-            'id': user_id,
-            'name': user_name,
-            'group': {
-                'id': group_id,
-                'name': group_name
-            }
+            "id": user_id,
+            "name": user_name,
+            "group": {"id": group_id, "name": group_name},
         }
 
-    def config(self, task_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Read Ansible config file as specified in task_vars.
+    def config(
+        self, task_vars: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Read Ansible config file as specified in task_vars.
 
         Parses the Ansible configuration file and extracts all sections
         and their settings for controller introspection.
 
-        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :param Optional[Dict[str, Any]] task_vars: Task variables
+            dictionary
         :returns Dict[str, Any]: Configuration dictionary with path and
             settings information
-        :raises AnsibleActionFail: If ansible_config_file is missing from
-            task_vars
+        :raises AnsibleActionFail: If ansible_config_file is missing
+            from task_vars
         """
         task_vars = task_vars or {}
-        self._display.v('Collecting controller Ansible config info...')
+        self._display.v("Collecting controller Ansible config info...")
 
-        path = task_vars.get('ansible_config_file')
+        path = task_vars.get("ansible_config_file")
         if not path:
             raise AnsibleActionFail(
                 "'ansible_config_file' is missing from task_vars"
             )
 
-        config = {'path': path, 'settings': {}}
+        config = {"path": path, "settings": {}}
 
         cfg = configparser.ConfigParser()
         cfg.read(path)
 
         for section in cfg.sections():
-            config['settings'][section] = dict(cfg.items(section))
+            config["settings"][section] = dict(cfg.items(section))
 
         return config
 
-    def python(self, task_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Return Python interpreter info and pip version (if available).
+    def python(
+        self, task_vars: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Return Python interpreter info and pip version (if available).
 
-        Collects information about the Python interpreter running Ansible
-        and attempts to determine the pip version if available.
+        Collects information about the Python interpreter running
+        Ansible and attempts to determine the pip version if available.
 
-        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :param Optional[Dict[str, Any]] task_vars: Task variables
+            dictionary
         :returns Dict[str, Any]: Python interpreter and pip information
-        :raises AnsibleActionFail: If ansible_playbook_python is missing
+        :raises AnsibleActionFail: If ansible_playbook_python is
+            missing
             from task_vars
         """
         task_vars = task_vars or {}
-        self._display.v('Collecting controller Python info...')
+        self._display.v("Collecting controller Python info...")
 
-        path = task_vars.get('ansible_playbook_python')
+        path = task_vars.get("ansible_playbook_python")
         if not path:
             raise AnsibleActionFail(
                 "'ansible_playbook_python' is missing from task_vars"
             )
 
         python = {
-            'interpreter': {
-                'path': path,
-                'version': {
-                    'id': sys.version.split()[0]
-                }
+            "interpreter": {
+                "path": path,
+                "version": {"id": sys.version.split()[0]},
             }
         }
 
         try:
             # Try to get pip version from the same interpreter
-            pip_argv = [path, '-m', 'pip', '--version']
+            pip_argv = [path, "-m", "pip", "--version"]
             pip_output = subprocess.run(
-                pip_argv, capture_output=True, encoding='utf-8', check=True
-            ).stdout.rstrip('\r\n')
-            python['pip'] = {
-                'version': {'id': pip_output.split()[1]}
-            }
+                pip_argv, capture_output=True, encoding="utf-8", check=True
+            ).stdout.rstrip("\r\n")
+            python["pip"] = {"version": {"id": pip_output.split()[1]}}
         except Exception:
-            self._display.vv('pip not available for this interpreter')
-            python['pip'] = None
+            self._display.vv("pip not available for this interpreter")
+            python["pip"] = None
 
         return python
 
     def collector(
-        self, gather_subset: Optional[List[str]] = None, task_vars: Optional[Dict[str, Any]] = None
+        self,
+        gather_subset: Optional[List[str]] = None,
+        task_vars: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Run selected collectors and return merged fact data.
+        """
+        Run selected collectors and return merged fact data.
 
         Coordinates the collection of different fact categories based on
         the specified subset filter, supporting modular fact gathering.
@@ -185,18 +196,18 @@ class ActionModule(ActionBase):
         :raises AnsibleActionFail: When invalid gather_subset values are
             provided
         """
-        gather_subset = gather_subset or ['all']
+        gather_subset = gather_subset or ["all"]
         task_vars = task_vars or {}
 
-        all_collectors = ['user', 'config', 'python']
+        all_collectors = ["user", "config", "python"]
         subsets = set()
 
         for s in gather_subset:
-            if s == 'all':
+            if s == "all":
                 subsets = set(all_collectors)
-            elif s == '!all':
+            elif s == "!all":
                 subsets = set()
-            elif s.startswith('!') and s[1:] in all_collectors:
+            elif s.startswith("!") and s[1:] in all_collectors:
                 subsets.discard(s[1:])
             elif s in all_collectors:
                 subsets.add(s)
@@ -209,22 +220,26 @@ class ActionModule(ActionBase):
                 self._display.vv(f"Gathering controller fact subset: {s}")
                 facts[s] = getattr(self, s)(task_vars=task_vars)
 
-        return {'o0_controller': facts}
+        return {"o0_controller": facts}
 
     def run(
-        self, tmp: Optional[str] = None, task_vars: Optional[Dict[str, Any]] = None
+        self,
+        tmp: Optional[str] = None,
+        task_vars: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Main entry point for the controller facts action plugin.
+        """
+        Main entry point for the controller facts action plugin.
 
         Gathers facts about the Ansible controller host based on the
         specified subset filter and returns them under the o0_controller
         fact namespace.
 
         :param Optional[str] tmp: Temporary directory path (unused)
-        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :param Optional[Dict[str, Any]] task_vars: Task variables
+            dictionary
         :returns Dict[str, Any]: Standard Ansible result dictionary
-        :raises AnsibleActionFail: When running on Windows controllers or
-            invalid gather_subset values are provided
+        :raises AnsibleActionFail: When running on Windows controllers
+            or invalid gather_subset values are provided
 
         .. note::
            This method operates locally on the controller host and does
@@ -236,42 +251,49 @@ class ActionModule(ActionBase):
 
         if not self._task.run_once:
             self._display.warning(
-                'The o0_o.controller.facts module is intended to run on the '
-                'controller with `run_once: true`. Running this per-host is '
-                'unnecessary.'
+                "The o0_o.controller.facts module is intended to run on the "
+                "controller with `run_once: true`. Running this per-host is "
+                "unnecessary."
             )
 
         # Fail early if run from a Windows controller
-        if os.name == 'nt':
+        if os.name == "nt":
             raise AnsibleActionFail(
                 "The 'o0_o.controller.facts' plugin does not support Windows "
                 "as a controller host. This plugin uses POSIX-only tools."
             )
 
         argument_spec = {
-            'gather_subset': {
-                'type': 'list',
-                'elements': 'str',
-                'default': ['all'],
-                'choices': [
-                    'all', 'user', 'config', 'python',
-                    '!all', '!user', '!config', '!python'
-                ]
+            "gather_subset": {
+                "type": "list",
+                "elements": "str",
+                "default": ["all"],
+                "choices": [
+                    "all",
+                    "user",
+                    "config",
+                    "python",
+                    "!all",
+                    "!user",
+                    "!config",
+                    "!python",
+                ],
             }
         }
 
         validation_result, new_module_args = self.validate_argument_spec(
             argument_spec=argument_spec
         )
-        gather_subset = new_module_args['gather_subset']
+        gather_subset = new_module_args["gather_subset"]
 
         result = super(ActionModule, self).run(tmp, task_vars)
 
-        result.update({
-            'ansible_facts': self.collector(
-                gather_subset=gather_subset,
-                task_vars=task_vars
-            )
-        })
+        result.update(
+            {
+                "ansible_facts": self.collector(
+                    gather_subset=gather_subset, task_vars=task_vars
+                )
+            }
+        )
 
         return result

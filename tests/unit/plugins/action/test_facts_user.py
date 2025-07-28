@@ -17,22 +17,22 @@ import subprocess
 
 def test_user(monkeypatch, action_base) -> None:
     """Test user collector gathers controller user information."""
-    monkeypatch.setattr(os, 'geteuid', lambda: 1000)
+    monkeypatch.setattr(os, "geteuid", lambda: 1000)
 
     def mock_run(args, capture_output, encoding, check):
-        if '-un' in args:
-            return type('Result', (), {'stdout': 'testuser\n'})()
-        if '-g' in args:
-            return type('Result', (), {'stdout': '1000\n'})()
-        if '-gn' in args:
-            return type('Result', (), {'stdout': 'testgroup\n'})()
+        if "-un" in args:
+            return type("Result", (), {"stdout": "testuser\n"})()
+        if "-g" in args:
+            return type("Result", (), {"stdout": "1000\n"})()
+        if "-gn" in args:
+            return type("Result", (), {"stdout": "testgroup\n"})()
         raise ValueError(f"Unexpected args: {args}")
 
-    monkeypatch.setattr(subprocess, 'run', mock_run)
+    monkeypatch.setattr(subprocess, "run", mock_run)
 
     result = action_base.user()
 
-    assert result['id'] == 1000
-    assert result['name'] == 'testuser'
-    assert result['group']['id'] == '1000'
-    assert result['group']['name'] == 'testgroup'
+    assert result["id"] == 1000
+    assert result["name"] == "testuser"
+    assert result["group"]["id"] == "1000"
+    assert result["group"]["name"] == "testgroup"

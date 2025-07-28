@@ -21,20 +21,20 @@ from ansible.errors import AnsibleActionFail
 
 def test_python_info(monkeypatch, action_base) -> None:
     """Test python collector returns interpreter and pip information."""
-    monkeypatch.setattr(sys, 'version', '3.12.1 (main, Jan 1 2025) ...')
+    monkeypatch.setattr(sys, "version", "3.12.1 (main, Jan 1 2025) ...")
 
     def mock_run(args, capture_output, encoding, check):
-        return type('Result', (), {'stdout': 'pip 24.0 from ...'})()
+        return type("Result", (), {"stdout": "pip 24.0 from ..."})()
 
-    monkeypatch.setattr(subprocess, 'run', mock_run)
+    monkeypatch.setattr(subprocess, "run", mock_run)
 
-    result = action_base.python(task_vars={
-        'ansible_playbook_python': '/usr/bin/python3'
-    })
+    result = action_base.python(
+        task_vars={"ansible_playbook_python": "/usr/bin/python3"}
+    )
 
-    assert result['interpreter']['path'] == '/usr/bin/python3'
-    assert result['interpreter']['version']['id'] == '3.12.1'
-    assert result['pip']['version']['id'] == '24.0'
+    assert result["interpreter"]["path"] == "/usr/bin/python3"
+    assert result["interpreter"]["version"]["id"] == "3.12.1"
+    assert result["pip"]["version"]["id"] == "24.0"
 
 
 def test_python_raises_without_interpreter(action_base) -> None:
@@ -42,4 +42,4 @@ def test_python_raises_without_interpreter(action_base) -> None:
     with pytest.raises(AnsibleActionFail) as excinfo:
         action_base.python(task_vars={})
 
-    assert 'ansible_playbook_python' in str(excinfo.value)
+    assert "ansible_playbook_python" in str(excinfo.value)

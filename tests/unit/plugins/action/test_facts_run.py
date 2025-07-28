@@ -20,9 +20,9 @@ from ansible.errors import AnsibleActionFail
 
 def test_run_blocks_on_windows(monkeypatch, action_base) -> None:
     """Test run method blocks on Windows systems."""
-    monkeypatch.setattr(os, 'name', 'nt')
+    monkeypatch.setattr(os, "name", "nt")
 
     with pytest.raises(AnsibleActionFail) as excinfo:
         action_base.run(task_vars={})
 
-    assert 'does not support Windows' in str(excinfo.value)
+    assert "does not support Windows" in str(excinfo.value)

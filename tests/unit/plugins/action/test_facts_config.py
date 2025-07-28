@@ -20,18 +20,18 @@ from ansible.errors import AnsibleActionFail
 
 def test_config_reads_ini(action_base) -> None:
     """Test config collector parses INI file correctly."""
-    ini = '[defaults]\ninventory = ./hosts\n'
+    ini = "[defaults]\ninventory = ./hosts\n"
 
-    with tempfile.NamedTemporaryFile('w', delete=False) as f:
+    with tempfile.NamedTemporaryFile("w", delete=False) as f:
         f.write(ini)
         path = f.name
 
-    task_vars = {'ansible_config_file': path}
+    task_vars = {"ansible_config_file": path}
 
     result = action_base.config(task_vars=task_vars)
 
-    assert result['path'] == path
-    assert result['settings']['defaults']['inventory'] == './hosts'
+    assert result["path"] == path
+    assert result["settings"]["defaults"]["inventory"] == "./hosts"
 
 
 def test_config_raises_without_var(action_base) -> None:
@@ -39,4 +39,4 @@ def test_config_raises_without_var(action_base) -> None:
     with pytest.raises(AnsibleActionFail) as excinfo:
         action_base.config(task_vars={})
 
-    assert 'ansible_config_file' in str(excinfo.value)
+    assert "ansible_config_file" in str(excinfo.value)

@@ -18,33 +18,35 @@ from ansible.errors import AnsibleActionFail
 
 def test_collector_all(monkeypatch, action_base) -> None:
     """Test collector gathers all subsets when 'all' is passed."""
-    monkeypatch.setattr(action_base, 'user', lambda **_: {'u': 1})
-    monkeypatch.setattr(action_base, 'config', lambda **_: {'c': 2})
-    monkeypatch.setattr(action_base, 'python', lambda **_: {'p': 3})
+    monkeypatch.setattr(action_base, "user", lambda **_: {"u": 1})
+    monkeypatch.setattr(action_base, "config", lambda **_: {"c": 2})
+    monkeypatch.setattr(action_base, "python", lambda **_: {"p": 3})
 
-    result = action_base.collector(gather_subset=['all'])
+    result = action_base.collector(gather_subset=["all"])
 
-    assert result['o0_controller']['user'] == {'u': 1}
-    assert result['o0_controller']['config'] == {'c': 2}
-    assert result['o0_controller']['python'] == {'p': 3}
+    assert result["o0_controller"]["user"] == {"u": 1}
+    assert result["o0_controller"]["config"] == {"c": 2}
+    assert result["o0_controller"]["python"] == {"p": 3}
 
 
 def test_collector_exclude(monkeypatch, action_base) -> None:
-    """Test collector excludes specific subsets using '!subset' syntax."""
-    monkeypatch.setattr(action_base, 'user', lambda **_: {'u': 1})
-    monkeypatch.setattr(action_base, 'config', lambda **_: {'c': 2})
-    monkeypatch.setattr(action_base, 'python', lambda **_: {'p': 3})
+    """
+    Test collector excludes specific subsets using '!subset' syntax.
+    """
+    monkeypatch.setattr(action_base, "user", lambda **_: {"u": 1})
+    monkeypatch.setattr(action_base, "config", lambda **_: {"c": 2})
+    monkeypatch.setattr(action_base, "python", lambda **_: {"p": 3})
 
-    result = action_base.collector(gather_subset=['all', '!config'])
+    result = action_base.collector(gather_subset=["all", "!config"])
 
-    assert 'config' not in result['o0_controller']
-    assert 'user' in result['o0_controller']
-    assert 'python' in result['o0_controller']
+    assert "config" not in result["o0_controller"]
+    assert "user" in result["o0_controller"]
+    assert "python" in result["o0_controller"]
 
 
 def test_collector_invalid_subset(action_base) -> None:
     """Test collector raises error for invalid subset names."""
     with pytest.raises(AnsibleActionFail) as excinfo:
-        action_base.collector(gather_subset=['bogus'])
+        action_base.collector(gather_subset=["bogus"])
 
-    assert 'Invalid gather_subset' in str(excinfo.value)
+    assert "Invalid gather_subset" in str(excinfo.value)

@@ -10,9 +10,10 @@
 # This file is part of the o0_o.controller Ansible Collection.
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 ---
 module: facts
 short_description: Gather facts from the local Ansible controller
@@ -52,9 +53,9 @@ attributes:
     description: Only POSIX platforms are supported.
     support: full
     platforms: posix
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Gather all controller facts
   o0_o.controller.facts:
 
@@ -69,9 +70,9 @@ EXAMPLES = r'''
       - user
       - config
       - '!python'
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 ansible_facts:
   description: Dictionary of gathered controller facts.
   returned: always
@@ -144,7 +145,7 @@ ansible_facts:
                     id:
                       type: str
                       description: pip version string.
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -152,24 +153,29 @@ from ansible.module_utils.basic import AnsibleModule
 def main():
     """Fail if this module is run directly without the action plugin."""
     argument_spec = {
-        'gather_subset': {
-            'type': 'list',
-            'elements': 'str',
-            'default': ['all'],
-            'choices': [
-                'all', 'user', 'config', 'python',
-                '!all', '!user', '!config', '!python'
-            ]
+        "gather_subset": {
+            "type": "list",
+            "elements": "str",
+            "default": ["all"],
+            "choices": [
+                "all",
+                "user",
+                "config",
+                "python",
+                "!all",
+                "!user",
+                "!config",
+                "!python",
+            ],
         }
     }
 
     module = AnsibleModule(
-        argument_spec=argument_spec,
-        supports_check_mode=True
+        argument_spec=argument_spec, supports_check_mode=True
     )
 
-    module.fail_json(msg='This module must be run via its action plugin.')
+    module.fail_json(msg="This module must be run via its action plugin.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
