@@ -55,7 +55,7 @@ class ActionModule(ActionBase):
         :raises AnsibleActionFail: If any subprocess call fails
         """
         task_vars = task_vars or {}
-        self._display.v("Collecting controller user info...")
+        self._display.v('Collecting controller user info...')
 
         user_id = os.geteuid()
 
@@ -106,7 +106,7 @@ class ActionModule(ActionBase):
             task_vars
         """
         task_vars = task_vars or {}
-        self._display.v("Collecting controller Ansible config info...")
+        self._display.v('Collecting controller Ansible config info...')
 
         path = task_vars.get('ansible_config_file')
         if not path:
@@ -136,7 +136,7 @@ class ActionModule(ActionBase):
             from task_vars
         """
         task_vars = task_vars or {}
-        self._display.v("Collecting controller Python info...")
+        self._display.v('Collecting controller Python info...')
 
         path = task_vars.get('ansible_playbook_python')
         if not path:
@@ -163,7 +163,7 @@ class ActionModule(ActionBase):
                 'version': {'id': pip_output.split()[1]}
             }
         except Exception:
-            self._display.vv("pip not available for this interpreter")
+            self._display.vv('pip not available for this interpreter')
             python['pip'] = None
 
         return python
@@ -236,9 +236,9 @@ class ActionModule(ActionBase):
 
         if not self._task.run_once:
             self._display.warning(
-                "The o0_o.controller.facts module is intended to run on the "
-                "controller with `run_once: true`. Running this per-host is "
-                "unnecessary."
+                'The o0_o.controller.facts module is intended to run on the '
+                'controller with `run_once: true`. Running this per-host is '
+                'unnecessary.'
             )
 
         # Fail early if run from a Windows controller

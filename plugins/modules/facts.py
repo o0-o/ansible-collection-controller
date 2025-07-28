@@ -16,7 +16,7 @@ DOCUMENTATION = r'''
 ---
 module: facts
 short_description: Gather facts from the local Ansible controller
-version_added: "1.0.0"
+version_added: '1.0.0'
 description:
   - Collects facts from the controller host that is running Ansible.
   - Includes current user information, Python interpreter and pip version,
@@ -168,7 +168,7 @@ def main():
         supports_check_mode=True
     )
 
-    module.fail_json(msg="This module must be run via its action plugin.")
+    module.fail_json(msg='This module must be run via its action plugin.')
 
 
 if __name__ == '__main__':
