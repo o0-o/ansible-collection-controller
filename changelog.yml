@@ -3,6 +3,16 @@
 ---
 releases:
 
+  - "1.0.2":
+    changes:
+      added:
+        - Comprehensive CI/CD system using GitHub Actions for automated
+          testing and deployment.
+        - Multi-OS testing support (Alpine, Debian, Ubuntu, macOS).
+        - Python 3.9-3.13 and Ansible 2.15-2.18 compatibility testing.
+        - Automated collection building and Ansible Galaxy publishing.
+        - GitHub CI status badge in README.
+
   - "1.0.1":
     changes:
       changed:
