@@ -1,5 +1,6 @@
 # o0_o.controller
 
+[![CI](https://github.com/o0-o/ansible-collection-controller/actions/workflows/ci.yml/badge.svg)](https://github.com/o0-o/ansible-collection-controller/actions/workflows/ci.yml)
 [![Ansible Galaxy](https://img.shields.io/ansible/collection/v/o0_o/controller.svg?color=brightgreen&label=ansible%20galaxy)](https://galaxy.ansible.com/o0_o/controller)
 
 Ansible Collection for gathering facts from the Ansible controller host.
